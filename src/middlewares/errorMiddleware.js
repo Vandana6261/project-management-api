@@ -9,6 +9,7 @@ export const errorMiddleware = (err, req, res, next) => {
     const response = {
         success: false,
         message: err.message || "Internal Server Error",
+        errors: err.errors || undefined,
     };
 
     if (!err.isOperational) {       // errors like DB crash, stack trace, internal code issue
