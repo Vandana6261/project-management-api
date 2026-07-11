@@ -12,15 +12,17 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(uuid())
+  id           String   @id @default(cuid())
   username     String   @unique
-  realName     String?
+  realName     String
   email        String   @unique
-  passwordHash String
+  password     String
+
+  isVerified   Boolean  @default(false)
+
+  hashedRefresh String?
+  
   createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  lastLogin    DateTime?
 }
 
-model Otp {
-  id           String   @id @default(uuid())
-}
