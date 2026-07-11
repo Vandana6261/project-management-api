@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors"
 import authRoute from "./routes/authRoute.js"
+import { errorMiddleware } from "./middlewares/errorMiddleware.js";
 
 
 const app = express();
@@ -14,10 +15,11 @@ app.use(express.json());
 app.use((req, res, next) => {
     console.log(req.url, "req url");
     console.log(req.method, "req method");
-    console.log("Anything")
     next();
 })
 
-app.use("/api/user", authRoute);
+app.use("/api/auth", authRoute);
+
+app.use(errorMiddleware)
 
 export default app;
