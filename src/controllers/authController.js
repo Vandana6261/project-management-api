@@ -3,7 +3,7 @@ import { AppError } from "../utils/AppError.js";
 import { z } from "zod";
 import crypto from 'crypto';
 import bcrypt from "bcrypt"
-import { generateAccessToken, generateRefreshToken } from "../utils/token.js";
+import { genAccessToken, genRefreshToken, genOtpSession, genSignupSession } from "../utils/token.js";
 
 const signupSchema = z.object({
   username: z.string().trim().min(3, "Username must be at least 3 characters").max(20),
@@ -32,7 +32,7 @@ export const sendOtp = async (req, res) => {
     if(!isOtpSaved) {
         throw new AppError("Internal Server Error", 500);
     }
-
+    await genOtpSession({email}, res)
     return res.status(200).json({success: true, isOtpSent});
 }
 
@@ -45,6 +45,7 @@ export const verifyOtp = async (req, res, next) => {
 
     const isValid = await verifyOtpService(otp, email);
     if(isValid) {
+        await genSignupSession({email}, res)
         await deleteOtp(email);
         return res.status(200).json({success: true});
     }
@@ -67,8 +68,8 @@ export const registerUser = async (req, res) => {
     const newUser = await register({...userData, password: hashedPassword});
     // console.log(newUser, "newUser")
 
-    await generateAccessToken({userId: newUser.id, username: newUser.username}, res)
-    await generateRefreshToken({userId: newUser.id, username: newUser.username}, res)
+    await genAccessToken({userId: newUser.id, username: newUser.username}, res)
+    await genRefreshToken({userId: newUser.id, username: newUser.username}, res)
 
     return res.status(201).json({
         message: "User created successfully",

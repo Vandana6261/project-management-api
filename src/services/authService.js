@@ -52,15 +52,11 @@ export const verifyOtpService = async (otp, email) => {
   } else if(result.otp !== otp) {
     throw new AppError("Invalid Otp", 400)
   } else if(result.otp === otp) {
-    const user = await User.insertOne({email});
     return true;
   }
 }
 
 export const register = async (userData) => {
-  // const user = await User.findOne({email});
-  // if(!user) throw new AppError("Your signup session expired", 400);
-
   const isRegister = await prisma.user.create({
     data: {...userData, isVerified: true}
   });
