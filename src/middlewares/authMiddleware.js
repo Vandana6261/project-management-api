@@ -67,13 +67,11 @@ export const verifyRefreshToken = async (req, res, next) => {
 export const verifyOtpToken = (req, res, next) => {
     try {
         const token = req.cookies.otpToken;
-        console.log(token, "otpToken")
         if (!token) {
             return res.status(401).json({message: "OTP session expired"})
         }
 
         const decoded = verifyToken(token, process.env.OTP_SESSION_KEY)
-        console.log(decoded, "decode for otp session")
         req.user = decoded;
         next();
 
@@ -85,7 +83,7 @@ export const verifyOtpToken = (req, res, next) => {
 export const verifySignupToken = (req, res, next) => {
     try {
         const token = req.cookies.signUpToken;
-        console.log(token, "signup session token")
+        // console.log(token, "signup session token")
         if (!token) {
             return res.status(401).json({
                 message: "Signup session expired"
@@ -93,7 +91,7 @@ export const verifySignupToken = (req, res, next) => {
         }
 
         const decoded = verifyToken(token, process.env.SIGNUP_SESSION_KEY);
-        console.log(decoded, "decode for signup session")
+        // console.log(decoded, "decode for signup session")
         req.user = decoded;
 
         next();

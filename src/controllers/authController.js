@@ -7,7 +7,7 @@ import { genAccessToken, genRefreshToken, genOtpSession, genSignupSession } from
 
 const signupSchema = z.object({
   username: z.string().trim().min(3, "Username must be at least 3 characters").max(20),
-  realName: z.string().trim().min(2, "Your name is required").max(50),
+  fullName: z.string().trim().min(2, "Your name is required").max(50),
   email: z.string().trim().email("Invalid email"),
   password: z.string() .min(8, "Password must be at least 8 characters")
 });
@@ -22,7 +22,7 @@ export const sendOtp = async (req, res) => {
     await deleteOtp(email);
 
     const otp = crypto.randomInt(100000, 999999).toString();
-
+    console.log(otp, "otp")
     const isOtpSent = await sendOtpToMail(email, otp);
     if(!isOtpSent) {
         throw new AppError("Internal server Error", 500);
@@ -38,11 +38,11 @@ export const sendOtp = async (req, res) => {
 
 
 export const verifyOtp = async (req, res, next) => {
-    const {otp, email} = req.body;
+    const {otp} = req.body;
+    const email = req.user.email;
     if(!otp || !email) {
         throw new AppError("Required field are missing");
     }
-
     const isValid = await verifyOtpService(otp, email);
     if(isValid) {
         await genSignupSession({email}, res)
@@ -54,11 +54,11 @@ export const verifyOtp = async (req, res, next) => {
 
 
 export const registerUser = async (req, res) => {
-    const userData = req.body;
-    const validationResult = signupSchema.safeParse(req.body);
+    const userData = {...req.body, email: req.user.email};
+    const validationResult = signupSchema.safeParse(userData);
 
     if(!validationResult.success) {
-        return res.status(400).json({messaage: "Validation failed", error:  validationResult.error.issues})
+        return res.status(400).json({success: false, message: "Validation failed", error:  validationResult.error.issues})
     }
     
     const user = await getUser(userData.email);
@@ -72,6 +72,7 @@ export const registerUser = async (req, res) => {
     await genRefreshToken({userId: newUser.id, username: newUser.username}, res)
 
     return res.status(201).json({
+        success: true,
         message: "User created successfully",
         user: newUser.username
     });
