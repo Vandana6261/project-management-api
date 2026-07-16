@@ -1,7 +1,7 @@
 import express from "express";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { registerUser, sendOtp, verifyOtp } from "../controllers/authController.js";
-import { verifyOtpToken, verifySignupToken } from "../middlewares/authMiddleware.js";
+import { login, registerUser, sendOtp, verifyOtp, refreshAccessToken, me } from "../controllers/authController.js";
+import { verifyAccessToken, verifyOtpToken, verifyRefreshToken, verifySignupToken } from "../middlewares/authMiddleware.js";
 import rateLimit from "express-rate-limit";
 
 const router= express.Router();
@@ -16,8 +16,13 @@ const otpLimiter = rateLimit({
 });
 
 
+router.get("/me", verifyAccessToken, asyncHandler(me));
+
 router.post("/send-otp", otpLimiter, asyncHandler(sendOtp))
 router.post("/verify-otp", verifyOtpToken, asyncHandler(verifyOtp))
 router.post("/register", verifySignupToken, asyncHandler(registerUser));
+router.post("/refresh", verifyRefreshToken, asyncHandler(refreshAccessToken));
+
+router.post("/login", asyncHandler(login));
 
 export default router;

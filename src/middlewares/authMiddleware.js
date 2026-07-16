@@ -15,7 +15,7 @@ export function verifyAccessToken (req, res, next) {
         }
 
         const decoded = verifyToken(token, process.env.JWT_ACCESS_SECRET);
-        req.user = decoded;
+        req.user = {userId: decoded.userId, username: decoded.username};
         next();
 
     } catch (error) {
@@ -51,8 +51,8 @@ export const verifyRefreshToken = async (req, res, next) => {
         if (hashedToken !== user.hashedRefresh) {
             return res.status(401).json({message: "Refresh token mismatch"});
         }
-
-        req.user = decoded;
+        
+        req.user = {userId: decoded.userId, username: decoded.username};
         next();
 
     } catch (error) {
@@ -72,7 +72,7 @@ export const verifyOtpToken = (req, res, next) => {
         }
 
         const decoded = verifyToken(token, process.env.OTP_SESSION_KEY)
-        req.user = decoded;
+        req.user = {userId: decoded.userId, username: decoded.username};
         next();
 
     } catch (error) {
@@ -91,8 +91,7 @@ export const verifySignupToken = (req, res, next) => {
         }
 
         const decoded = verifyToken(token, process.env.SIGNUP_SESSION_KEY);
-        // console.log(decoded, "decode for signup session")
-        req.user = decoded;
+        req.user = {userId: decoded.userId, username: decoded.username};
 
         next();
 

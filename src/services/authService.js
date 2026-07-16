@@ -6,13 +6,21 @@ import prisma from "../config/prisma.js";
 import { z } from "zod";
 
 
-export const getUser = async ( email ) => {
-  return await prisma.user.findUnique({
-    where: {
-      email,
-    },
+export const getUser = async ( userId, email ) => {
+  if (!userId && !email) {
+    throw new Error("Either userId or email is required.");
+  }
+
+  const user =  await prisma.user.findUnique({
+    where: userId
+      ? { id: userId }
+      : { email },
   });
-};
+  // if(!user) {
+  //   throw new AppError("User doesn't exists with this email, please signUp", 401);
+  // }
+  return user;
+};      
 
 export const sendOtpToMail = async ( email, otp ) => {
   const res = await fetch(process.env.MAIL_ENDPOINT, {
@@ -62,4 +70,20 @@ export const register = async (userData) => {
   });
   if(!isRegister) throw new AppError("Internal server error", 500);
   return isRegister;
+}
+
+
+export const checkUser = async (email) => {
+
+  const user = prisma.user.findUnique({
+    where: {
+      email: email,
+    },
+  });
+
+  if(!user) {
+    throw new AppError("User doesn't exists with this email, please signUp", 401);
+  }
+
+  return user;
 }

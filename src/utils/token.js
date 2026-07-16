@@ -2,7 +2,6 @@ import jwt from 'jsonwebtoken';
 import prisma from '../config/prisma.js';
 import crypto from "crypto"
 import { getCookieOptions } from './cookieOptions.js';
-console.log("Token generate called")
 
 export const genAccessToken = (payload, res) => {
     const accessToken = jwt.sign(
@@ -65,7 +64,6 @@ export const genSignupSession = async (payload, res) => {
         process.env.SIGNUP_SESSION_KEY,
         {expiresIn: process.env.SIGNUP_SESSION_EXPIRY}
     )
-    console.log(signUpToken, "signUp Token")
     res.cookie("signUpToken", signUpToken, {
         ...getCookieOptions(),
         maxAge: 10 * 60 * 1000
