@@ -38,7 +38,7 @@ export const sendOtp = async (req, res) => {
   await deleteOtp(email);
 
   const otp = crypto.randomInt(100000, 999999).toString();
-//   console.log(otp, "otp");
+  console.log(otp, "otp");
   const isOtpSent = await sendOtpToMail(email, otp);
   if (!isOtpSent) {
     throw new AppError("Internal server Error", 500);
@@ -92,7 +92,7 @@ export const registerUser = async (req, res) => {
   return res.status(201).json({
     success: true,
     message: "User created successfully",
-    user: newUser.username,
+    username: newUser.username,
   });
 };
 
@@ -116,7 +116,7 @@ export const login = async (req, res) => {
   return res.status(201).json({
     success: true,
     message: "User Logged in successfully",
-    user: user.username,
+    username: user.username,
   });
 };
 

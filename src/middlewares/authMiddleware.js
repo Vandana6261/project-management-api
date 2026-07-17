@@ -72,7 +72,7 @@ export const verifyOtpToken = (req, res, next) => {
         }
 
         const decoded = verifyToken(token, process.env.OTP_SESSION_KEY)
-        req.user = {userId: decoded.userId, username: decoded.username};
+        req.user = {userId: decoded.userId, email: decoded.email};
         next();
 
     } catch (error) {
@@ -91,8 +91,7 @@ export const verifySignupToken = (req, res, next) => {
         }
 
         const decoded = verifyToken(token, process.env.SIGNUP_SESSION_KEY);
-        req.user = {userId: decoded.userId, username: decoded.username};
-
+        req.user = {userId: decoded.userId, email: decoded.email};
         next();
 
     } catch (error) {
