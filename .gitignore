@@ -3,3 +3,5 @@ node_modules
 snippet.js
 /src/generated/prisma
 test_db.js
+migrations
+z.txt

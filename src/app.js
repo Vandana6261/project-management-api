@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors"
 import cookieParser from "cookie-parser";
 import authRoute from "./routes/authRoute.js"
+import optionRoute from "./routes/optionRoute.js"
+import projectRoute from "./routes/projectRoute.js"
 import { errorMiddleware } from "./middlewares/errorMiddleware.js";
 
 
@@ -25,6 +27,9 @@ app.use((req, res, next) => {
 })
 
 app.use("/api/auth", authRoute);
+app.use("/api/project", optionRoute);
+app.use("/api/project", projectRoute);
+
 
 app.use(errorMiddleware)
 
