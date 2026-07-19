@@ -1,7 +1,7 @@
 import {
-  checkUser,
+  getUserByMail,
   deleteOtp,
-  getUser,
+  getUserByID,
   register,
   saveOtp,
   sendOtpToMail,
@@ -19,21 +19,17 @@ import {
 } from "../utils/token.js";
 
 const signupSchema = z.object({
-  username: z
-    .string()
-    .trim()
-    .min(3, "Username must be at least 3 characters")
-    .max(20),
+  username: z.string().trim().min(3, "Username must be at least 3 characters").max(20),
   fullName: z.string().trim().min(2, "Your name is required").max(50),
   email: z.string().trim().email("Invalid email"),
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
-
+``
 export const sendOtp = async (req, res) => {
   const { email } = req.body;
   if (!email) throw new AppError("Email is required", 400);
 
-  const user = await getUser(email);
+  const user = await getUserByMail(email);
   if (user) throw new AppError("User already exists with this email", 409);
   await deleteOtp(email);
 
@@ -80,7 +76,7 @@ export const registerUser = async (req, res) => {
       });
   }
 
-  const user = await getUser(userData.email);
+  const user = await getUserByMail(userData.email);
   if (user) throw new AppError("User already exists with this email", 409);
 
   const hashedPassword = await bcrypt.hash(userData.password, 12);
@@ -102,7 +98,7 @@ export const login = async (req, res) => {
     throw new AppError("Required field are missing");
   }
 
-  const user = await checkUser(email);
+  const user = await getUserByMail(email);
 
   const isPasswordValid = await bcrypt.compare(password, user.password);
 
@@ -128,6 +124,6 @@ export const refreshAccessToken = (req,res) => {
 export const me = async (req, res) => {
     const email = req.user.email;
     const userId = req.user.userId;
-    const user = await getUser(userId);
+    const user = await getUserByID(userId);
     return res.status(200).json({success: true, username:user.username} )
 }

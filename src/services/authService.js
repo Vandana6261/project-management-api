@@ -1,28 +1,12 @@
 import Otp from "../models/otp.js";
-import User from "../models/user.js"
+import User from "../models/user.js";
 import { AppError } from "../utils/AppError.js";
 import prisma from "../config/prisma.js";
 
 import { z } from "zod";
 
 
-export const getUser = async ( userId, email ) => {
-  if (!userId && !email) {
-    throw new Error("Either userId or email is required.");
-  }
-
-  const user =  await prisma.user.findUnique({
-    where: userId
-      ? { id: userId }
-      : { email },
-  });
-  // if(!user) {
-  //   throw new AppError("User doesn't exists with this email, please signUp", 401);
-  // }
-  return user;
-};      
-
-export const sendOtpToMail = async ( email, otp ) => {
+export const sendOtpToMail = async (email, otp) => {
   const res = await fetch(process.env.MAIL_ENDPOINT, {
     method: "POST",
     headers: {
@@ -42,48 +26,59 @@ export const sendOtpToMail = async ( email, otp ) => {
   return payload;
 };
 
-
-export const saveOtp = async ( email, otp ) => {
-    const result = await Otp.insertOne({email, otp});
-    return result;
-}
+export const saveOtp = async (email, otp) => {
+  const result = await Otp.insertOne({ email, otp });
+  return result;
+};
 
 export const deleteOtp = async (email) => {
-    const result = await Otp.deleteMany({email});
-    return result;
-}
+  const result = await Otp.deleteMany({ email });
+  return result;
+};
 
 export const verifyOtpService = async (otp, email) => {
-  const result = await Otp.findOne({email}).sort({createdAt: -1});
+  const result = await Otp.findOne({ email }).sort({ createdAt: -1 });
   if(!result) {
     throw new AppError("Otp has been expired", 400);
   } else if(result.otp !== otp) {
-    throw new AppError("Invalid Otp", 400)
+    throw new AppError("Invalid Otp", 400);
   } else if(result.otp === otp) {
     return true;
   }
-}
+};
 
 export const register = async (userData) => {
   const isRegister = await prisma.user.create({
-    data: {...userData, isVerified: true}
+    data: { ...userData, isVerified: true },
   });
   if(!isRegister) throw new AppError("Internal server error", 500);
   return isRegister;
-}
+};
 
-
-export const checkUser = async (email) => {
-
-  const user = prisma.user.findUnique({
+export const getUserByMail = async (email) => {
+  const user = await prisma.user.findUnique({
     where: {
       email: email,
     },
   });
-
-  if(!user) {
-    throw new AppError("User doesn't exists with this email, please signUp", 401);
-  }
+  console.log(user, "checkUser");
+  // if (!user) {
+  //   throw new AppError(
+  //     "User doesn't exists with this email, please signUp",
+  //     401,
+  //   );
+  // }
 
   return user;
-}
+};
+
+
+export const getUserByID = async (userId) => {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+  return user;
+};
