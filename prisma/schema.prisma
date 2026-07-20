@@ -1,5 +1,3 @@
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,50 +8,38 @@ datasource db {
 }
 
 model User {
-  id       String @id @default(cuid())
-  username String @unique
-  fullName String
-  email    String @unique
-  password String
-
-  isVerified Boolean @default(false)
-
+  id            String          @id @default(cuid())
+  username      String          @unique
+  fullName      String
+  email         String          @unique
+  password      String
+  isVerified    Boolean         @default(false)
   hashedRefresh String?
-
-  createdAt DateTime  @default(now())
-  lastLogin DateTime?
-
-  projects ProjectMember[]
+  createdAt     DateTime        @default(now())
+  lastLogin     DateTime?
+  projects      ProjectMember[]
 }
 
 model Project {
-  id          String  @id @default(cuid())
-  name        String  @unique
-  description String? @db.Text
-
-  status   ProjectStatus   @default(PLANNING)
-  priority ProjectPriority @default(MEDIUM)
-
-  dueDate DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  members ProjectMember[]
+  id          String          @id @default(cuid())
+  name        String          @unique
+  description String?
+  status      ProjectStatus   @default(PLANNING)
+  priority    ProjectPriority @default(MEDIUM)
+  dueDate     DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  members     ProjectMember[]
 }
 
 model ProjectMember {
-  id String @id @default(cuid())
-
+  id        String      @id @default(cuid())
   projectId String
   userId    String
-
-  role ProjectRole @default(MEMBER)
-
-  joinedAt DateTime @default(now())
-
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      ProjectRole @default(MEMBER)
+  joinedAt  DateTime    @default(now())
+  project   Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([projectId, userId])
 }
