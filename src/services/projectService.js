@@ -58,3 +58,18 @@ export const projectExists = async (name) => {
   
   return existingProject;
 };
+
+export const getAllProjectService = async (userId) => {
+  console.log(userId, "userId");
+  const projects = await prisma.projectMember.findMany({
+  where: {
+    userId: userId
+  },
+  include: {
+    project: true
+  }
+});
+
+
+  return projects;
+};
