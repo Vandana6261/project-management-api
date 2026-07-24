@@ -3,6 +3,7 @@ import cors from "cors"
 import cookieParser from "cookie-parser";
 import authRoute from "./routes/authRoute.js"
 import projectRoute from "./routes/projectRoute.js"
+import taskRoute from "./routes/taskRoute.js"
 import { errorMiddleware } from "./middlewares/errorMiddleware.js";
 import helmet from "helmet";
 
@@ -29,6 +30,7 @@ app.use((req, res, next) => {
 
 app.use("/api/auth", authRoute);
 app.use("/api/project", projectRoute);
+app.use("/api/project/task", taskRoute);
 
 
 app.use(errorMiddleware)
