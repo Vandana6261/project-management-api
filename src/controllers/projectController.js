@@ -1,8 +1,10 @@
-import { createProjectService, getAllProjectService, projectExists } from "../services/projectService.js";
+import { getUserByMail } from "../services/authService.js";
+import { addMemberService, createProjectService, getAllProjectService, projectExists } from "../services/projectService.js";
 import { AppError } from "../utils/AppError.js";
 import { projectSchema } from "../validations/projectValidation.js";
 
-export const createProject = async (req, res, next) => {
+
+export const createProject = async (req, res) => {
   const projectData = req.body;
   const { userId } = req.user;
   // console.log(projectData, "projectData");
@@ -18,6 +20,7 @@ export const createProject = async (req, res, next) => {
       error: validationResult.error.issues,
     });
   }
+
   const isProjectNameExist = await projectExists(projectData.name);
   if(isProjectNameExist) throw new AppError("Project already exist with this name, project name should be unique", 409);
 
@@ -27,8 +30,30 @@ export const createProject = async (req, res, next) => {
 };
 
 
-export const getAllProject = async (req, res, next) => {
+export const getAllProject = async (req, res) => {
   const project = await getAllProjectService(req.user.userId);
   console.log(project, "project")
   return res.status(200).json({success: true, project});
+}
+
+
+export const addMember = async (req, res) => {
+  const {email, role, projectId} = req.body;
+  console.log(req.body);
+
+  if(!email || !role) {
+    throw new AppError("Required fields are missing", 400);
+  }
+
+  const user = await getUserByMail(email);
+  if(!user) throw new AppError("User with this email not registered in our application", 404);
+
+  const userId = user.id;
+
+  const isProject = await projectExists("", projectId);
+  if(!isProject) throw new AppError("This project doesn't exists in db");
+
+  const isMemberAdded = await addMemberService(email, role, projectId, userId);
+  console.log(isMemberAdded, "project after member add");
+  return res.status(200).json({success: true, isMemberAdded});
 }

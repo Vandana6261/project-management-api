@@ -40,13 +40,17 @@ export const getOptions = (req, res, next) => {
         },
       ],
       roles: [
-        {
-          value: "OWNER",
-          label: "Owner",
-        },
+        // {
+        //   value: "OWNER",
+        //   label: "Owner",
+        // },
         {
           value: "ADMIN",
           label: "Admin",
+        },
+        {
+          value: "DEVELOPER",
+          label: "Developer"
         },
         {
           value: "MEMBER",
