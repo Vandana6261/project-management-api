@@ -1,7 +1,7 @@
 import express from "express";
 import { verifyAccessToken } from "../middlewares/authMiddleware.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { addMember, createProject, getAllProject } from "../controllers/projectController.js";
+import { addMember, createProject, getAllProject, getProjectMember } from "../controllers/projectController.js";
 import { getOptions } from "../controllers/projectOptions.js";
 
 const router = express.Router();
@@ -12,6 +12,7 @@ console.log("create project");
 
 router.get("/project-options", getOptions)
 router.get("/get-project", asyncHandler(getAllProject))
+router.get("/:projectId/members", asyncHandler(getProjectMember))
 
 router.post("/create", asyncHandler(createProject));
 router.post("/add-member", asyncHandler(addMember));

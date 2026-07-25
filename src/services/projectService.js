@@ -41,8 +41,14 @@ export const createProjectService = async (userId, data) => {
 
     return project;
   } catch (error) {
-    if(error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
-      throw new AppError("Project already exists with this name. Please choose another name.", 409);
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      throw new AppError(
+        "Project already exists with this name. Please choose another name.",
+        409,
+      );
     }
 
     throw error;
@@ -87,9 +93,8 @@ export const getAllProjectService = async (userId) => {
 };
 
 export const addMemberService = async (email, role, projectId, userId) => {
-
   try {
-    console.log("enter in try ")
+    console.log("enter in try ");
     const member = await prisma.projectMember.create({
       data: {
         projectId,
@@ -101,13 +106,31 @@ export const addMemberService = async (email, role, projectId, userId) => {
         project: true,
       },
     });
-    
+
     return member;
   } catch (error) {
-    console.log(error, "error in service")
+    console.log(error, "error in service");
     if (error.code === "P2002") {
       throw new AppError("User is already a project member", 409);
     }
   }
+};
 
+export const getProjectMemberService = async (projectId) => {
+  const members = await prisma.projectMember.findMany({
+    where: {
+      projectId,
+    },
+    select: {
+      user: {
+        select: {
+          id: true,
+          username: true,
+          fullName: true,
+        },
+      },
+    },
+  });
+
+  return members.map((member) => member.user);
 };

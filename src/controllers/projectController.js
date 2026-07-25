@@ -1,5 +1,5 @@
 import { getUserByMail } from "../services/authService.js";
-import { addMemberService, createProjectService, getAllProjectService, projectExists } from "../services/projectService.js";
+import { addMemberService, createProjectService, getAllProjectService, projectExists, getProjectMemberService } from "../services/projectService.js";
 import { AppError } from "../utils/AppError.js";
 import { projectSchema } from "../validations/projectValidation.js";
 
@@ -32,7 +32,6 @@ export const createProject = async (req, res) => {
 
 export const getAllProject = async (req, res) => {
   const project = await getAllProjectService(req.user.userId);
-  console.log(project, "project")
   return res.status(200).json({success: true, project});
 }
 
@@ -40,6 +39,7 @@ export const getAllProject = async (req, res) => {
 export const addMember = async (req, res) => {
   const {email, role, projectId} = req.body;
   console.log(req.body);
+  console.log(projectId, "projectId");
 
   if(!email || !role) {
     throw new AppError("Required fields are missing", 400);
@@ -56,4 +56,16 @@ export const addMember = async (req, res) => {
   const isMemberAdded = await addMemberService(email, role, projectId, userId);
   console.log(isMemberAdded, "project after member add");
   return res.status(200).json({success: true, isMemberAdded});
+}
+
+
+export const getProjectMember = async (req, res) => {
+  const { projectId } = req.params;
+
+  const isProjectNameExist = await projectExists("", projectId);
+  if(!isProjectNameExist) throw new AppError("Project doesn't exist with this name", 409);
+
+  const members = await getProjectMemberService(projectId);
+
+  res.status(200).json({success: true, members});
 }
