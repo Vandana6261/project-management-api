@@ -122,5 +122,6 @@ enum ProjectPriority {
 enum ProjectRole {
   OWNER
   ADMIN
+  DEVELOPER
   MEMBER
 }
