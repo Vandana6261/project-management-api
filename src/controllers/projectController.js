@@ -7,8 +7,6 @@ import { projectSchema } from "../validations/projectValidation.js";
 export const createProject = async (req, res) => {
   const projectData = req.body;
   const { userId } = req.user;
-  // console.log(projectData, "projectData");
-  // console.log(userId, "userId");
 
   const validationResult = projectSchema.safeParse(req.body);
   
@@ -38,8 +36,6 @@ export const getAllProject = async (req, res) => {
 
 export const addMember = async (req, res) => {
   const {email, role, projectId} = req.body;
-  console.log(req.body);
-  console.log(projectId, "projectId");
 
   if(!email || !role) {
     throw new AppError("Required fields are missing", 400);
@@ -54,7 +50,7 @@ export const addMember = async (req, res) => {
   if(!isProject) throw new AppError("This project doesn't exists in db");
 
   const isMemberAdded = await addMemberService(email, role, projectId, userId);
-  console.log(isMemberAdded, "project after member add");
+
   return res.status(200).json({success: true, isMemberAdded});
 }
 

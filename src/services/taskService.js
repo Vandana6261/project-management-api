@@ -1,9 +1,6 @@
 import prisma from "../config/prisma.js";
 
 export const createTaskService = async (taskData) => {
-  console.log("task Service")
-  console.log(taskData, "taskData")
-  console.log(prisma.task);
   const task = await prisma.task.create({
     data: {
       title: taskData.title,
@@ -48,13 +45,37 @@ export const checkProjectMembers = async (projectId, userIds) => {
     }
   });
 
-  const existingMemberIds = projectMembers.map(
-    member => member.userId
-  );
+  const existingMemberIds = projectMembers.map((member) => member.userId);
 
-  const invalidMembers = userIds.filter(
-    userId => !existingMemberIds.includes(userId)
-  );
+  const invalidMembers = userIds.filter((userId) => !existingMemberIds.includes(userId));
 
   return invalidMembers;
+};
+
+export const getAssignedTaskService = async (userId) => {
+  const userTasks = await prisma.taskAssignment.findMany({
+    where: {
+      userId,
+    },
+    select: {
+      task: {
+        select: {
+          title: true,
+          description: true,
+          status: true,
+          priority: true,
+          startDate: true,
+          dueDate: true,
+          project: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return userTasks;
 };

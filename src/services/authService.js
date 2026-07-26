@@ -61,7 +61,7 @@ export const getUserByMail = async (email) => {
       email: email,
     },
   });
-  console.log(user, "checkUser");
+  // console.log(user, "checkUser");
   // if (!user) {
   //   throw new AppError(
   //     "User doesn't exists with this email, please signUp",
