@@ -39,5 +39,5 @@ export const createTask = async (req, res) => {
 export const getAssignedTask = async (req, res) => {
   const userId = req.user.userId;
   const userTasks = await getAssignedTaskService(userId);
-  return res.status(200).json({success: true, message: userTasks});
+  return res.status(200).json({success: true, data: userTasks});
 }
