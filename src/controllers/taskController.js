@@ -33,7 +33,7 @@ export const createTask = async (req, res) => {
 
   const task = await createTaskService(taskData);
 
-  return res.status(200).json({ message: true, task });
+  return res.status(201).json({ success: true, message: "Task Created Successfully" });
 };
 
 export const getAssignedTask = async (req, res) => {
