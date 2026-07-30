@@ -76,18 +76,32 @@ export const projectExists = async (name = "", projectId = "") => {
   }
 };
 
+
 export const getAllProjectService = async (userId) => {
   const projects = await prisma.projectMember.findMany({
     where: {
       userId: userId,
     },
-    include: {
-      project: true,
+    select: {
+      projectId: true,
+      role: true,
+      joinedAt: true,
+      project: {
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          status: true,
+          priority: true,
+          dueDate: true,
+        },
+      },
     },
   });
 
   return projects;
 };
+
 
 export const addMemberService = async (email, role, projectId, userId) => {
   try {
@@ -106,11 +120,12 @@ export const addMemberService = async (email, role, projectId, userId) => {
     return member;
   } catch (error) {
     if (error.code === "P2002") {
-      console.log(error, "error in add member service")
+      console.log(error, "error in add member service");
       throw new AppError("User is already a project member", 409);
     }
   }
 };
+
 
 export const getProjectMemberService = async (projectId) => {
   const members = await prisma.projectMember.findMany({
