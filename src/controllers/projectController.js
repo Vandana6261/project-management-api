@@ -1,5 +1,5 @@
 import { getUserByMail } from "../services/authService.js";
-import { addMemberService, createProjectService, getAllProjectService, projectExists, getProjectMemberService } from "../services/projectService.js";
+import { addMemberService, createProjectService, getAllProjectService, projectExists, getProjectMemberService, getProjectDataByIdService } from "../services/projectService.js";
 import { AppError } from "../utils/AppError.js";
 import { projectSchema } from "../validations/projectValidation.js";
 
@@ -64,4 +64,13 @@ export const getProjectMember = async (req, res) => {
   const members = await getProjectMemberService(projectId);
 
   res.status(200).json({success: true, members});
+}
+
+
+export const getProjectDataById = async (req, res) => {
+  const { projectId } = req.params;
+  
+  const projectData = await getProjectDataByIdService(projectId);
+  if(!projectData) throw new AppError("Project with this projectId doesn't esxists", 404);
+  return res.status(200).json({success: true, data: projectData});
 }

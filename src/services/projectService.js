@@ -76,7 +76,6 @@ export const projectExists = async (name = "", projectId = "") => {
   }
 };
 
-
 export const getAllProjectService = async (userId) => {
   const projects = await prisma.projectMember.findMany({
     where: {
@@ -102,7 +101,6 @@ export const getAllProjectService = async (userId) => {
   return projects;
 };
 
-
 export const addMemberService = async (email, role, projectId, userId) => {
   try {
     const member = await prisma.projectMember.create({
@@ -126,7 +124,6 @@ export const addMemberService = async (email, role, projectId, userId) => {
   }
 };
 
-
 export const getProjectMemberService = async (projectId) => {
   const members = await prisma.projectMember.findMany({
     where: {
@@ -144,4 +141,59 @@ export const getProjectMemberService = async (projectId) => {
   });
 
   return members.map((member) => member.user);
+};
+
+export const getProjectDataByIdService = async (projectId) => {
+  const projectData = await prisma.project.findUnique({
+    where: {
+      id: projectId,
+    },
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      status: true,
+      priority: true,
+      startDate: true,
+      dueDate: true,
+      members: {
+        select: {
+          role: true,
+          joinedAt: true,
+          user: {
+            select: {
+              username: true,
+              fullName: true,
+              id: true,
+            },
+          },
+        },
+      },
+      tasks: {
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          status: true,
+          priority: true,
+          startDate: true,
+          dueDate: true,
+          assignments: {
+            select: {
+              assignedAt: true,
+              user: {
+                select: {
+                  id: true,
+                  username: true,
+                  fullName: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return projectData;
 };
