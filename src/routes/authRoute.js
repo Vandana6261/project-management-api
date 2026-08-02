@@ -15,6 +15,16 @@ const otpLimiter = rateLimit({
   }
 });
 
+const loginLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000,
+  max: process.env.NODE_ENV === 'Local' ? 1000 : 5,
+  message: {
+    success: false,
+    message: "Too many requests, please try again later."
+  }
+})
+
+
 
 router.get("/me", verifyAccessToken, asyncHandler(me));
 
@@ -23,6 +33,6 @@ router.post("/verify-otp", verifyOtpToken, asyncHandler(verifyOtp))
 router.post("/register", verifySignupToken, asyncHandler(registerUser));
 router.post("/refresh", verifyRefreshToken, asyncHandler(refreshAccessToken));
 
-router.post("/login", asyncHandler(login));
+router.post("/login", loginLimiter, asyncHandler(login));
 
 export default router;
