@@ -6,6 +6,7 @@ import projectRoute from "./routes/projectRoute.js"
 import taskRoute from "./routes/taskRoute.js"
 import { errorMiddleware } from "./middlewares/errorMiddleware.js";
 import helmet from "helmet";
+import { botDetector } from "./middlewares/botDetector.js";
 
 
 const app = express();
@@ -19,6 +20,8 @@ app.use(cors({
     methods: ["GET", "POST"],
     credentials: true,
 }));
+
+app.use(botDetector);
 app.use(cookieParser());
 app.use(helmet());
 
@@ -27,6 +30,8 @@ app.use((req, res, next) => {
     console.log(req.method, "req method");
     next();
 })
+
+
 
 app.use("/api/auth", authRoute);
 app.use("/api/project", projectRoute);
