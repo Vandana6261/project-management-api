@@ -83,7 +83,7 @@ export const registerUser = async (req, res) => {
   const newUser = await register({ ...userData, password: hashedPassword });
 
   genAccessToken({ userId: newUser.id, username: newUser.username }, res);
-  await genRefreshToken({ userId: newUser.id, username: newUser.username },res);
+  await genRefreshToken({ userId: newUser.id, username: newUser.username }, res);
 
   return res.status(201).json({
     success: true,
@@ -99,15 +99,15 @@ export const login = async (req, res) => {
   }
 
   const user = await getUserByMail(email);
-
+  if (!user) throw new AppError("User not found", 404);
   const isPasswordValid = await bcrypt.compare(password, user.password);
 
   if (!isPasswordValid) {
-    throw new AppError("Invalid credentials");
+    throw new AppError("Invalid credentials", 401);
   }
 
   genAccessToken({ userId: user.id, username: user.username }, res);
-  await genRefreshToken({ userId: user.id, username: user.username },res);
+  await genRefreshToken({ userId: user.id, username: user.username }, res);
 
   return res.status(201).json({
     success: true,
@@ -116,14 +116,14 @@ export const login = async (req, res) => {
   });
 };
 
-export const refreshAccessToken = (req,res) => {
+export const refreshAccessToken = (req, res) => {
   genAccessToken(req.user, res)
-  return res.status(200).json({success: true})
+  return res.status(200).json({ success: true })
 }
 
 export const me = async (req, res) => {
-    const email = req.user.email;
-    const userId = req.user.userId;
-    const user = await getUserByID(userId);
-    return res.status(200).json({success: true, username:user.username} )
+  const email = req.user.email;
+  const userId = req.user.userId;
+  const user = await getUserByID(userId);
+  return res.status(200).json({ success: true, username: user.username })
 }
