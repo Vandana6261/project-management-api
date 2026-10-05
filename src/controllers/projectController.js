@@ -19,10 +19,10 @@ export const createProject = async (req, res) => {
     });
   }
 
-  const isProjectNameExist = await projectExists(projectData.name);
+  const isProjectNameExist = await projectExists(validationResult.data.name);
   if(isProjectNameExist) throw new AppError("Project already exist with this name, project name should be unique", 409);
 
-  const result = await createProjectService(userId, projectData);
+  const result = await createProjectService(userId, validationResult.data);
   
   return res.status(200).json({success: true, result});
 };
