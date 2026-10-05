@@ -3,13 +3,13 @@ import prisma from "../config/prisma.js";
 import { AppError } from "../utils/AppError.js";
 
 export const createProjectService = async (userId, data) => {
-  const { name, description, status, priority, dueDate } = data;
+  const { name, description, status, priority, dueDate, startDate } = data;
   console.log("project service called");
-  // If no due date is provided, set it to 6 months from now.
+  // If no due date is provided, set it to 6 months from start date or now.
   const finalDueDate = dueDate
     ? new Date(dueDate)
     : (() => {
-        const date = new Date();
+        const date = startDate ? new Date(startDate) : new Date();
         date.setMonth(date.getMonth() + 6);
         return date;
       })();
@@ -23,6 +23,7 @@ export const createProjectService = async (userId, data) => {
           description,
           status,
           priority,
+          startDate: startDate ? new Date(startDate) : null,
           dueDate: finalDueDate,
         },
       });
@@ -92,6 +93,7 @@ export const getAllProjectService = async (userId) => {
           description: true,
           status: true,
           priority: true,
+          startDate: true,
           dueDate: true,
         },
       },
