@@ -4,6 +4,10 @@ export const getTaskOptions = (req, res, next) => {
         data: {
             status: [
                 {
+                    value: "BACKLOG",
+                    label: "Backlog"
+                },
+                {
                     value: "TODO",
                     label: "Todo"
                 },

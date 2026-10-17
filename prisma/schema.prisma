@@ -91,6 +91,7 @@ model TaskAssignment {
 
 
 enum TaskStatus {
+  BACKLOG
   TODO
   IN_PROGRESS
   IN_REVIEW

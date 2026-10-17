@@ -1,5 +1,5 @@
 import { projectExists } from "../services/projectService.js";
-import { checkProjectMembers, createTaskService, getAssignedTaskService } from "../services/taskService.js";
+import { checkProjectMembers, createTaskService, getAssignedTaskService, getTaskByIdService, updateTaskService } from "../services/taskService.js";
 import { AppError } from "../utils/AppError.js";
 import { createTaskSchema } from "../validations/taskValidation.js";
 
@@ -40,4 +40,34 @@ export const getAssignedTask = async (req, res) => {
   const userId = req.user.userId;
   const userTasks = await getAssignedTaskService(userId);
   return res.status(200).json({success: true, data: userTasks});
-}
+};
+
+export const getTaskById = async (req, res) => {
+  const { taskId } = req.params;
+  const task = await getTaskByIdService(taskId);
+  if (!task) {
+    throw new AppError("Task not found", 404);
+  }
+  return res.status(200).json({ success: true, data: task });
+};
+
+export const updateTask = async (req, res) => {
+  const { taskId } = req.params;
+  const existingTask = await getTaskByIdService(taskId);
+  if (!existingTask) {
+    throw new AppError("Task not found", 404);
+  }
+
+  if (req.body.members && Array.isArray(req.body.members)) {
+    const invalidMembers = await checkProjectMembers(
+      existingTask.projectId,
+      req.body.members
+    );
+    if (invalidMembers.length) {
+      throw new AppError("All assigned user must belongs to the project", 409);
+    }
+  }
+
+  const updated = await updateTaskService(taskId, req.body);
+  return res.status(200).json({ success: true, message: "Task updated successfully", data: updated });
+};

@@ -60,6 +60,7 @@ export const getAssignedTaskService = async (userId) => {
     select: {
       task: {
         select: {
+          id: true,
           title: true,
           description: true,
           status: true,
@@ -78,4 +79,100 @@ export const getAssignedTaskService = async (userId) => {
   });
 
   return userTasks;
+};
+
+export const getTaskByIdService = async (taskId) => {
+  const task = await prisma.task.findUnique({
+    where: { id: taskId },
+    include: {
+      project: {
+        select: {
+          id: true,
+          name: true,
+          status: true,
+          priority: true,
+          members: {
+            select: {
+              role: true,
+              user: {
+                select: {
+                  id: true,
+                  username: true,
+                  fullName: true,
+                  email: true,
+                },
+              },
+            },
+          },
+        },
+      },
+      assignments: {
+        include: {
+          user: {
+            select: {
+              id: true,
+              username: true,
+              fullName: true,
+              email: true,
+            },
+          },
+        },
+      },
+    },
+  });
+  return task;
+};
+
+export const updateTaskService = async (taskId, updateData) => {
+  const { title, description, status, priority, startDate, dueDate, members } = updateData;
+
+  return await prisma.$transaction(async (tx) => {
+    if (members && Array.isArray(members)) {
+      await tx.taskAssignment.deleteMany({
+        where: { taskId },
+      });
+      if (members.length > 0) {
+        await tx.taskAssignment.createMany({
+          data: members.map((userId) => ({
+            taskId,
+            userId,
+          })),
+        });
+      }
+    }
+
+    const dataToUpdate = {};
+    if (title !== undefined) dataToUpdate.title = title;
+    if (description !== undefined) dataToUpdate.description = description;
+    if (status !== undefined) dataToUpdate.status = status;
+    if (priority !== undefined) dataToUpdate.priority = priority;
+    if (startDate !== undefined) dataToUpdate.startDate = startDate ? new Date(startDate) : null;
+    if (dueDate !== undefined) dataToUpdate.dueDate = dueDate ? new Date(dueDate) : null;
+
+    const updatedTask = await tx.task.update({
+      where: { id: taskId },
+      data: dataToUpdate,
+      include: {
+        project: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        assignments: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                username: true,
+                fullName: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return updatedTask;
+  });
 };
