@@ -1,10 +1,10 @@
 import express from "express";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { login, registerUser, sendOtp, verifyOtp, refreshAccessToken, me } from "../controllers/authController.js";
+import { login, registerUser, sendOtp, verifyOtp, refreshAccessToken, me, logout } from "../controllers/authController.js";
 import { verifyAccessToken, verifyOtpToken, verifyRefreshToken, verifySignupToken } from "../middlewares/authMiddleware.js";
 import rateLimit from "express-rate-limit";
 
-const router= express.Router();
+const router = express.Router();
 
 const otpLimiter = rateLimit({
   windowMs: 5 * 60 * 1000, // 5 minutes
@@ -34,5 +34,6 @@ router.post("/register", verifySignupToken, asyncHandler(registerUser));
 router.post("/refresh", verifyRefreshToken, asyncHandler(refreshAccessToken));
 
 router.post("/login", loginLimiter, asyncHandler(login));
+router.post("/logout", asyncHandler(logout));
 
 export default router;

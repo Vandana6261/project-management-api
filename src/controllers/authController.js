@@ -17,6 +17,9 @@ import {
   genOtpSession,
   genSignupSession,
 } from "../utils/token.js";
+import jwt from "jsonwebtoken";
+import prisma from "../config/prisma.js";
+import { getCookieOptions } from "../utils/cookieOptions.js";
 
 const signupSchema = z.object({
   username: z.string().trim().min(3, "Username must be at least 3 characters").max(20),
@@ -89,6 +92,7 @@ export const registerUser = async (req, res) => {
     success: true,
     message: "User created successfully",
     username: newUser.username,
+    email: newUser.email
   });
 };
 
@@ -113,6 +117,7 @@ export const login = async (req, res) => {
     success: true,
     message: "User Logged in successfully",
     username: user.username,
+    email: user.email
   });
 };
 
@@ -122,8 +127,51 @@ export const refreshAccessToken = (req, res) => {
 }
 
 export const me = async (req, res) => {
-  const email = req.user.email;
   const userId = req.user.userId;
   const user = await getUserByID(userId);
-  return res.status(200).json({ success: true, username: user.username })
+  if (!user) throw new AppError("User not found", 404);
+  return res.status(200).json({ success: true, username: user.username, email: user.email })
 }
+
+export const logout = async (req, res) => {
+  // Extract userId from cookies to nullify refresh token in DB
+  let userId = null;
+
+  const accessToken = req.cookies?.accessToken;
+  const refreshToken = req.cookies?.refreshToken;
+
+  // Try access token first (verify), fallback to decode (expired but parseable)
+  if (accessToken) {
+    try {
+      const decoded = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET);
+      userId = decoded.userId;
+    } catch (_) {
+      const decoded = jwt.decode(accessToken);
+      userId = decoded?.userId;
+    }
+  }
+
+  // Fallback: try refresh token
+  if (!userId && refreshToken) {
+    const decoded = jwt.decode(refreshToken);
+    userId = decoded?.userId;
+  }
+
+  // Nullify stored refresh hash so the token can't be reused
+  if (userId) {
+    try {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { hashedRefresh: null },
+      });
+    } catch (err) {
+      console.error("Logout DB cleanup error:", err?.message);
+    }
+  }
+
+  // Clear both httpOnly cookies
+  res.clearCookie("accessToken", getCookieOptions());
+  res.clearCookie("refreshToken", getCookieOptions());
+
+  return res.status(200).json({ success: true, message: "Logged out successfully" });
+};
